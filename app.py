@@ -1,5 +1,7 @@
 import collections
+
 from redis import Redis
+from datetime import datetime
 
 class call_record:
 
@@ -33,23 +35,42 @@ def parse(file_name):
 
     return calls
 
-def spit(calls):
+def process(r, calls):
 
-    r = Redis()
     LEADERBOARD = "leaderboard"
+    FREQUENCY = "call_frequency"
 
-    if not r.exists(LEADERBOARD):
+    if not r.exists(LEADERBOARD) and not r.exists(FREQUENCY):
         for call in calls:
 
             number = call.number
-            who = call.who
+            who = call.who.strip()
             seconds = int(call.seconds)
+            when = datetime.strptime(call.when, "%B %d, %Y at %I:%M%p")
 
-            r.zincrby(LEADERBOARD, number, seconds)
+            if len(who) == 0:
+                continue
 
-    print r.zrevrangebyscore(LEADERBOARD, "+inf", "-inf", withscores=True)
+            frequency_key=when.strftime("%d%m%Y") + "#" + number
+
+            r.zincrby(LEADERBOARD, who, seconds)
+            r.zincrby(FREQUENCY, frequency_key)
+
+    leaderboard_list = r.zrevrangebyscore(LEADERBOARD, "+inf", "-inf", 
+            withscores=True)
+
+    call_frequency_list = r.zrange(FREQUENCY, 0, -1, withscores=True)
+    print call_frequency_list 
+
+def clear_redis(r):
+    r.flushall()
+
 
 if __name__ == "__main__":
+    r = Redis()
+
     calls = parse("./calls.tsv")
-    spit(calls)
+
+    clear_redis(r)
+    process(r, calls)
 
