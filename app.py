@@ -1,4 +1,5 @@
 import collections
+from redis import Redis
 
 class call_record:
 
@@ -34,42 +35,19 @@ def parse(file_name):
 
 def spit(calls):
 
-    leaderboard = []
-    heatmap = {}
+    r = Redis()
+    LEADERBOARD = "leaderboard"
 
-    call_details = {}
-    for call in calls:
+    if not r.exists(LEADERBOARD):
+        for call in calls:
 
-        num = call.number
-        time = int(call.seconds)
-        who = call.who
+            number = call.number
+            who = call.who
+            seconds = int(call.seconds)
 
-        if num in call_details:
-            details = call_details[num]
-            total_seconds = int(details["total_seconds"])
-            total_seconds += time
-            call_details[num]["total_seconds"] = total_seconds
+            r.zincrby(LEADERBOARD, number, seconds)
 
-            if len(who.strip()) != 0:
-                heatmap[who] = total_seconds
-
-        else:
-            this_call_detail = {}
-            this_call_detail["total_seconds"] = time
-            this_call_detail["who"] = who
-            call_details[num] = this_call_detail
-
-            if len(who.strip()) != 0:
-                heatmap[who] = time
-
-    reverse_heatmap = {v:k for k,v in heatmap.items()}
-
-    ordered_reverse_heatmap = collections.OrderedDict(sorted(
-        reverse_heatmap.items()))
-
-    print collections.OrderedDict(reversed(ordered_reverse_heatmap.items()))
-
-    #print ordered_reverse_heatmap
+    print r.zrevrangebyscore(LEADERBOARD, "+inf", "-inf", withscores=True)
 
 if __name__ == "__main__":
     calls = parse("./calls.tsv")
