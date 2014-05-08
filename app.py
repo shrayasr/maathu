@@ -54,13 +54,14 @@ def process(r, calls):
             frequency_key=when.strftime("%d%m%Y") + "#" + number
 
             r.zincrby(LEADERBOARD, who, seconds)
-            r.zincrby(FREQUENCY, frequency_key)
+            r.hincrby(FREQUENCY, frequency_key)
 
     leaderboard_list = r.zrevrangebyscore(LEADERBOARD, "+inf", "-inf", 
             withscores=True)
 
-    call_frequency_list = r.zrange(FREQUENCY, 0, -1, withscores=True)
-    print call_frequency_list 
+    call_frequency_list = r.hgetall(FREQUENCY)
+
+    print call_frequency_list
 
 def clear_redis(r):
     r.flushall()
