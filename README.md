@@ -37,7 +37,7 @@ Now for the analytics.
 
 ##### Leaderboard - Pure Python
 
-The first task I gave myself was to get some kind of a leaderboard representing in a descending order, the list of people I spoke to most. I wanted Name -> Total No. of seconds i've spoken to them (outgoing and incoming) 
+The first task I gave myself was to get some kind of a leaderboard representing the list of people I spoke to most. I wanted Name -> Total No. of seconds i've spoken to them (outgoing and incoming) 
 
 Sat down to do this with plain Python and it didn't get me anywhere. This was the approach I followed: 
 
@@ -49,7 +49,7 @@ Sat down to do this with plain Python and it didn't get me anywhere. This was th
 
 [commit](https://github.com/shrayas/maathu/commit/82d77421c0bcd1c5e4efb3592a1f850ad265ea5d)
 
-As yu can clearly see, this was utter and pure **BS** 
+As you can clearly see, this was utter and pure **BS** 
 
 Learning: There are some things that are meant for doing somethings. This would have been **SO** easy with SQL. I believe the query would be this: 
 
@@ -71,7 +71,7 @@ Sorted Sets allows to assign a score to a key within a set. This seemed perfect.
 
 To get the leaderboard I just had to reverse sort it and `zrevrangebyscore` did the job for me. 
 
-As @vk said: _"30 odd lines, reduced to about 3"_. Thats the power of application. Applying the right things to the right places. I don't know if this is the **right** implementation for Redis but it really did solve my problem.
+As @[vk](https://github.com/vkarthik26/) said: _"30 odd lines, reduced to about 3"_. Thats the power of application. Applying the right things to the right places. I don't know if this is the **right** implementation for Redis but it really did solve my problem.
 
 ##### Call Frequency - Redis
 
